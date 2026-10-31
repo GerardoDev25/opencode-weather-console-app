@@ -81,7 +81,6 @@ describe('addCity', () => {
     );
 
     await addCity();
-    expect(true).toBeFalsy();
     expect(await loadCities()).toEqual({
       cities: [ottawa],
       defaultCity: 'Ottawa',

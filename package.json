@@ -1,10 +1,12 @@
 {
   "name": "02-weather",
+  "version": "1.0.0",
   "module": "src/index.ts",
   "type": "module",
   "private": true,
   "scripts": {
     "build": "bun test tests && bun build --compile src/index.ts --outfile out/weather",
+    "build:all": "bun test tests && bun build --compile --target=bun-linux-x64 src/index.ts --outfile out/weather-linux-x64 && bun build --compile --target=bun-windows-x64 src/index.ts --outfile out/weather-windows-x64.exe && bun build --compile --target=bun-darwin-x64 src/index.ts --outfile out/weather-macos-x64 && bun build --compile --target=bun-darwin-arm64 src/index.ts --outfile out/weather-macos-arm64",
     "test": "bun test tests",
     "test:watch": "bun test --watch tests",
     "typecheck": "tsc --noEmit",

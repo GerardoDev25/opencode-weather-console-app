@@ -11,8 +11,9 @@
 
 - Install: `bun install` (repo uses bun.lock — do not use npm/node)
 - Run: `bun run src/index.ts` (or `bun run start`)
-- Typecheck: `bun run typecheck` (`tsc --noEmit`; there are no test or lint configs — do not invent commands)
-- Build binary: `bun run build` (outputs `out/weather`)
+- Test: `bun test tests` (or `bun run test`; all test files live in `tests/`)
+- Typecheck: `bun run typecheck` (`tsc --noEmit`; there is no lint config — do not invent commands)
+- Build binary: `bun run build` (runs the test suite first and only compiles if it passes; outputs `out/weather`)
 
 ## OpenMeteo API (no API key required)
 

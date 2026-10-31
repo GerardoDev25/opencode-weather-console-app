@@ -4,7 +4,9 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "build": "bun build --compile src/index.ts --outfile out/weather",
+    "build": "bun test tests && bun build --compile src/index.ts --outfile out/weather",
+    "test": "bun test tests",
+    "test:watch": "bun test --watch tests",
     "typecheck": "tsc --noEmit",
     "start": "bun run src/index.ts",
     "dev": "bun run src/index.ts --watch"

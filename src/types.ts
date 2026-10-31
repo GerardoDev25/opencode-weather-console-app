@@ -22,8 +22,17 @@ export interface GeocodingResponse {
   }>;
 }
 
+export interface DailyForecast {
+  time: string[];
+  temperature_2m_max: number[];
+  temperature_2m_min: number[];
+  precipitation_sum: number[];
+  wind_speed_10m_max: number[];
+}
+
 export interface ForecastResponse {
   current?: {
     temperature_2m: number;
   };
+  daily?: DailyForecast;
 }

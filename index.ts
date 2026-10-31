@@ -1,28 +1,67 @@
 import { green, red, yellow } from "./src/colors";
-import { currentTemperatureC, findCity } from "./src/openmeteo";
+import { currentTemperatureC, findCity, forecastWeekC } from "./src/openmeteo";
 import { loadStore, saveStore } from "./src/storage";
-import type { Store } from "./src/types";
-import { ask, closeUi, formatTemp, renderMenu } from "./src/ui";
+import type { City, Store } from "./src/types";
+import { ask, closeUi, formatDate, formatTemp, renderMenu } from "./src/ui";
 
 async function showWeather(store: Store, name: string, latitude: number, longitude: number) {
   const temp = await currentTemperatureC(latitude, longitude);
   console.log(`  ${name}: ${yellow(formatTemp(temp, store.unit))}`);
 }
 
-async function weatherDefault(store: Store) {
+function getDefaultCity(store: Store): City | null {
   if (!store.defaultCity) {
     console.log(red("  No hay ciudad default. Usa la opción 5 para establecer una."));
-    return;
+    return null;
   }
 
   const city = store.cities.find((c) => c.name === store.defaultCity);
   if (!city) {
     console.log(red(`  "${store.defaultCity}" no está en la lista de ciudades.`));
-    return;
+    return null;
   }
+
+  return city;
+}
+
+async function weatherDefault(store: Store) {
+  const city = getDefaultCity(store);
+  if (!city) return;
 
   try {
     await showWeather(store, `${city.name}, ${city.country}`, city.latitude, city.longitude);
+  } catch {
+    console.log(red("  No se pudo contactar a OpenMeteo. Verifica tu conexión."));
+  }
+}
+
+async function weatherWeek(store: Store) {
+  const city = getDefaultCity(store);
+  if (!city) return;
+
+  try {
+    const daily = await forecastWeekC(city.latitude, city.longitude);
+
+    console.log();
+    console.log(`  Pronóstico 7 días: ${city.name}, ${city.country} (${store.unit})`);
+    console.log(
+      `  ${"Fecha".padEnd(12)}${"Min".padStart(7)}${"Max".padStart(7)}${"Lluvia".padStart(10)}${"Viento".padStart(11)}`,
+    );
+
+    for (let i = 0; i < daily.time.length; i++) {
+      const date = daily.time[i];
+      const min = daily.temperature_2m_min[i];
+      const max = daily.temperature_2m_max[i];
+      const rain = daily.precipitation_sum[i];
+      const wind = daily.wind_speed_10m_max[i];
+      if (date === undefined || min === undefined || max === undefined || rain === undefined || wind === undefined) {
+        continue;
+      }
+
+      console.log(
+        `  ${formatDate(date).padEnd(12)}${formatTemp(min, store.unit).padStart(7)}${formatTemp(max, store.unit).padStart(7)}${`${rain} mm`.padStart(10)}${`${wind} km/h`.padStart(11)}`,
+      );
+    }
   } catch {
     console.log(red("  No se pudo contactar a OpenMeteo. Verifica tu conexión."));
   }
@@ -167,6 +206,8 @@ async function main() {
       await removeCity(store);
     } else if (option === "5") {
       await setDefaultCity(store);
+    } else if (option === "6") {
+      await weatherWeek(store);
     } else if (option === "8") {
       await toggleUnit(store);
     } else if (option === "9") {

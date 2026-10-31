@@ -2,15 +2,17 @@
 
 ## Project
 
-- Bun + TypeScript Weather CLI tutorial app. Entry point: `index.ts` (currently a stub).
+- Bun + TypeScript Weather CLI tutorial app. Entry point: `src/index.ts`.
+- Layered structure (see `references/file-system.md`): `src/actions/` (one module per user action), `src/presentation/` (menu, input, output), `src/storage/` (cities/settings persistence), `src/types/`, `src/api/` (OpenMeteo), `src/utils/`.
 - `README.md` (Spanish) is the product spec: menu layout, options, and API flow come from there — match it when implementing. Final deliverable is a compiled executable binary.
 - Workspace contains other numbered sibling projects (e.g. `01-demo`); each repo is self-contained.
 
 ## Commands
 
 - Install: `bun install` (repo uses bun.lock — do not use npm/node)
-- Run: `bun index.ts`
-- Typecheck: `bunx tsc --noEmit` (no scripts defined in package.json; there are no test or lint configs — do not invent commands)
+- Run: `bun run src/index.ts` (or `bun run start`)
+- Typecheck: `bun run typecheck` (`tsc --noEmit`; there are no test or lint configs — do not invent commands)
+- Build binary: `bun run build` (outputs `out/weather`)
 
 ## OpenMeteo API (no API key required)
 
@@ -24,7 +26,8 @@ Two-step flow documented in the README:
 - `.env` files and `out/`/`dist/` are gitignored; dotenv is not the current pattern.
 - tsconfig uses `strict`, `noUncheckedIndexedAccess` (array/record indexing returns `T | undefined`), `verbatimModuleSyntax` (use `import type` for type-only imports), and `allowImportingTsExtensions` (either omit or include the extension in imports — pick one and stay consistent).
 
-## State & persistence (from spec)
+## State & persistence
 
-- The app must support a default city and a list of saved cities, plus a temperature-unit setting (°C/°F). Persistence mechanism is not specified — a local JSON file written with Bun's file APIs (`Bun.write`/`Bun.file`) is the idiomatic Bun choice.
+- `cities.json` holds `{ cities, defaultCity }` (managed by `src/storage/citiesStorage.ts`); `settings.json` holds `{ unit }` (managed by `src/storage/settingsStorage.ts`). Both are gitignored.
+- `citiesStorage.ts` migrates a legacy `data.json` (single `Store` object) into the two files and deletes it.
 - Menu output format is prescribed in the README ("Ejemplo del menú" section); re-read it before implementing the UI.
